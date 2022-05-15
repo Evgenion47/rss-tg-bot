@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option go_package = "gitlab.ozon.dev/Evgenion47/homework-2/api"; // <- search errors here
+
+package api;
+
+import "google/protobuf/empty.proto";
+
+message srcData{
+  string source  = 1;
+  int64 UpdStamp = 2;
+}
+
+message srcList{
+  repeated string source = 1;
+}
+
+message delCreateData{
+  int64 userID = 1;
+  string source = 2;
+}
+
+message uData{
+  int64  userID  = 1;
+}
+
+service awesomeBotIII{
+  rpc CreateUser(uData) returns (google.protobuf.Empty) {}
+  rpc CreateSource(delCreateData) returns (google.protobuf.Empty) {}
+  rpc GetSrcs(uData) returns (srcList) {}
+  rpc DeleteSource(delCreateData) returns (google.protobuf.Empty) {}
+}
