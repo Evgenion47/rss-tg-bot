@@ -23,10 +23,11 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AwesomeBotIIIClient interface {
-	CreateUser(ctx context.Context, in *UData, opts ...grpc.CallOption) (*empty.Empty, error)
-	CreateSource(ctx context.Context, in *DelCreateData, opts ...grpc.CallOption) (*empty.Empty, error)
-	GetSrcs(ctx context.Context, in *UData, opts ...grpc.CallOption) (*SrcList, error)
-	DeleteSource(ctx context.Context, in *DelCreateData, opts ...grpc.CallOption) (*empty.Empty, error)
+	CreateUser(ctx context.Context, in *ChData, opts ...grpc.CallOption) (*empty.Empty, error)
+	CreateSource(ctx context.Context, in *ChSrcData, opts ...grpc.CallOption) (*empty.Empty, error)
+	GetSrcsByChat(ctx context.Context, in *ChData, opts ...grpc.CallOption) (*SrcSlcByChat, error)
+	DeleteSource(ctx context.Context, in *ChSrcData, opts ...grpc.CallOption) (*empty.Empty, error)
+	GetRSSBySource(ctx context.Context, in *ChSrcData, opts ...grpc.CallOption) (*RSSSlc, error)
 }
 
 type awesomeBotIIIClient struct {
@@ -37,7 +38,7 @@ func NewAwesomeBotIIIClient(cc grpc.ClientConnInterface) AwesomeBotIIIClient {
 	return &awesomeBotIIIClient{cc}
 }
 
-func (c *awesomeBotIIIClient) CreateUser(ctx context.Context, in *UData, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *awesomeBotIIIClient) CreateUser(ctx context.Context, in *ChData, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, "/api.awesomeBotIII/CreateUser", in, out, opts...)
 	if err != nil {
@@ -46,7 +47,7 @@ func (c *awesomeBotIIIClient) CreateUser(ctx context.Context, in *UData, opts ..
 	return out, nil
 }
 
-func (c *awesomeBotIIIClient) CreateSource(ctx context.Context, in *DelCreateData, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *awesomeBotIIIClient) CreateSource(ctx context.Context, in *ChSrcData, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, "/api.awesomeBotIII/CreateSource", in, out, opts...)
 	if err != nil {
@@ -55,18 +56,27 @@ func (c *awesomeBotIIIClient) CreateSource(ctx context.Context, in *DelCreateDat
 	return out, nil
 }
 
-func (c *awesomeBotIIIClient) GetSrcs(ctx context.Context, in *UData, opts ...grpc.CallOption) (*SrcList, error) {
-	out := new(SrcList)
-	err := c.cc.Invoke(ctx, "/api.awesomeBotIII/GetSrcs", in, out, opts...)
+func (c *awesomeBotIIIClient) GetSrcsByChat(ctx context.Context, in *ChData, opts ...grpc.CallOption) (*SrcSlcByChat, error) {
+	out := new(SrcSlcByChat)
+	err := c.cc.Invoke(ctx, "/api.awesomeBotIII/GetSrcsByChat", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *awesomeBotIIIClient) DeleteSource(ctx context.Context, in *DelCreateData, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *awesomeBotIIIClient) DeleteSource(ctx context.Context, in *ChSrcData, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, "/api.awesomeBotIII/DeleteSource", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *awesomeBotIIIClient) GetRSSBySource(ctx context.Context, in *ChSrcData, opts ...grpc.CallOption) (*RSSSlc, error) {
+	out := new(RSSSlc)
+	err := c.cc.Invoke(ctx, "/api.awesomeBotIII/GetRSSBySource", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -77,10 +87,11 @@ func (c *awesomeBotIIIClient) DeleteSource(ctx context.Context, in *DelCreateDat
 // All implementations must embed UnimplementedAwesomeBotIIIServer
 // for forward compatibility
 type AwesomeBotIIIServer interface {
-	CreateUser(context.Context, *UData) (*empty.Empty, error)
-	CreateSource(context.Context, *DelCreateData) (*empty.Empty, error)
-	GetSrcs(context.Context, *UData) (*SrcList, error)
-	DeleteSource(context.Context, *DelCreateData) (*empty.Empty, error)
+	CreateUser(context.Context, *ChData) (*empty.Empty, error)
+	CreateSource(context.Context, *ChSrcData) (*empty.Empty, error)
+	GetSrcsByChat(context.Context, *ChData) (*SrcSlcByChat, error)
+	DeleteSource(context.Context, *ChSrcData) (*empty.Empty, error)
+	GetRSSBySource(context.Context, *ChSrcData) (*RSSSlc, error)
 	mustEmbedUnimplementedAwesomeBotIIIServer()
 }
 
@@ -88,17 +99,20 @@ type AwesomeBotIIIServer interface {
 type UnimplementedAwesomeBotIIIServer struct {
 }
 
-func (UnimplementedAwesomeBotIIIServer) CreateUser(context.Context, *UData) (*empty.Empty, error) {
+func (UnimplementedAwesomeBotIIIServer) CreateUser(context.Context, *ChData) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
-func (UnimplementedAwesomeBotIIIServer) CreateSource(context.Context, *DelCreateData) (*empty.Empty, error) {
+func (UnimplementedAwesomeBotIIIServer) CreateSource(context.Context, *ChSrcData) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSource not implemented")
 }
-func (UnimplementedAwesomeBotIIIServer) GetSrcs(context.Context, *UData) (*SrcList, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetSrcs not implemented")
+func (UnimplementedAwesomeBotIIIServer) GetSrcsByChat(context.Context, *ChData) (*SrcSlcByChat, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSrcsByChat not implemented")
 }
-func (UnimplementedAwesomeBotIIIServer) DeleteSource(context.Context, *DelCreateData) (*empty.Empty, error) {
+func (UnimplementedAwesomeBotIIIServer) DeleteSource(context.Context, *ChSrcData) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteSource not implemented")
+}
+func (UnimplementedAwesomeBotIIIServer) GetRSSBySource(context.Context, *ChSrcData) (*RSSSlc, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRSSBySource not implemented")
 }
 func (UnimplementedAwesomeBotIIIServer) mustEmbedUnimplementedAwesomeBotIIIServer() {}
 
@@ -114,7 +128,7 @@ func RegisterAwesomeBotIIIServer(s grpc.ServiceRegistrar, srv AwesomeBotIIIServe
 }
 
 func _AwesomeBotIII_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UData)
+	in := new(ChData)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -126,13 +140,13 @@ func _AwesomeBotIII_CreateUser_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: "/api.awesomeBotIII/CreateUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AwesomeBotIIIServer).CreateUser(ctx, req.(*UData))
+		return srv.(AwesomeBotIIIServer).CreateUser(ctx, req.(*ChData))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _AwesomeBotIII_CreateSource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DelCreateData)
+	in := new(ChSrcData)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -144,31 +158,31 @@ func _AwesomeBotIII_CreateSource_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/api.awesomeBotIII/CreateSource",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AwesomeBotIIIServer).CreateSource(ctx, req.(*DelCreateData))
+		return srv.(AwesomeBotIIIServer).CreateSource(ctx, req.(*ChSrcData))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AwesomeBotIII_GetSrcs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UData)
+func _AwesomeBotIII_GetSrcsByChat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChData)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AwesomeBotIIIServer).GetSrcs(ctx, in)
+		return srv.(AwesomeBotIIIServer).GetSrcsByChat(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.awesomeBotIII/GetSrcs",
+		FullMethod: "/api.awesomeBotIII/GetSrcsByChat",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AwesomeBotIIIServer).GetSrcs(ctx, req.(*UData))
+		return srv.(AwesomeBotIIIServer).GetSrcsByChat(ctx, req.(*ChData))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _AwesomeBotIII_DeleteSource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DelCreateData)
+	in := new(ChSrcData)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -180,7 +194,25 @@ func _AwesomeBotIII_DeleteSource_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/api.awesomeBotIII/DeleteSource",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AwesomeBotIIIServer).DeleteSource(ctx, req.(*DelCreateData))
+		return srv.(AwesomeBotIIIServer).DeleteSource(ctx, req.(*ChSrcData))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AwesomeBotIII_GetRSSBySource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChSrcData)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AwesomeBotIIIServer).GetRSSBySource(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.awesomeBotIII/GetRSSBySource",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AwesomeBotIIIServer).GetRSSBySource(ctx, req.(*ChSrcData))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -201,12 +233,16 @@ var AwesomeBotIII_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AwesomeBotIII_CreateSource_Handler,
 		},
 		{
-			MethodName: "GetSrcs",
-			Handler:    _AwesomeBotIII_GetSrcs_Handler,
+			MethodName: "GetSrcsByChat",
+			Handler:    _AwesomeBotIII_GetSrcsByChat_Handler,
 		},
 		{
 			MethodName: "DeleteSource",
 			Handler:    _AwesomeBotIII_DeleteSource_Handler,
+		},
+		{
+			MethodName: "GetRSSBySource",
+			Handler:    _AwesomeBotIII_GetRSSBySource_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

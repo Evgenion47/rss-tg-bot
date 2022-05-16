@@ -6,27 +6,27 @@ package api;
 
 import "google/protobuf/empty.proto";
 
-message srcData{
-  string source  = 1;
-  int64 UpdStamp = 2;
+message SrcSlcByChat{
+  repeated string sources = 1;
 }
 
-message srcList{
-  repeated string source = 1;
-}
-
-message delCreateData{
-  int64 userID = 1;
+message ChSrcData{
+  int64 chatID = 1;
   string source = 2;
 }
 
-message uData{
-  int64  userID  = 1;
+message ChData{
+  int64  chatID  = 1;
+}
+
+message RSSSlc{
+  repeated string news = 1;
 }
 
 service awesomeBotIII{
-  rpc CreateUser(uData) returns (google.protobuf.Empty) {}
-  rpc CreateSource(delCreateData) returns (google.protobuf.Empty) {}
-  rpc GetSrcs(uData) returns (srcList) {}
-  rpc DeleteSource(delCreateData) returns (google.protobuf.Empty) {}
+  rpc CreateUser(ChData) returns (google.protobuf.Empty) {}
+  rpc CreateSource(ChSrcData) returns (google.protobuf.Empty) {}
+  rpc GetSrcsByChat(ChData) returns (SrcSlcByChat) {}
+  rpc DeleteSource(ChSrcData) returns (google.protobuf.Empty) {}
+  rpc GetRSSBySource(ChSrcData) returns (RSSSlc) {}
 }

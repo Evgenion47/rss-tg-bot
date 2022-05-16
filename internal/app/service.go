@@ -1,11 +1,16 @@
 package app
 
 import (
-	pb "awesomeProjectIII/pkg/api"
+	pb "homework-2/pkg/api"
 )
 
 type server struct {
+	repo Repository
 	pb.UnimplementedAwesomeBotIIIServer
+}
+
+func New(repo Repository) *server {
+	return &server{repo: repo}
 }
 
 //func (s server) CreateUser(ctx context.Context, req *pb.UData) (*empty.Empty, error) {
