@@ -19,11 +19,16 @@ message ChData{
   int64  chatID  = 1;
 }
 
+//message ChSlc{
+//  repeated int64 chatID = 1;
+//}
+
 message RSSSlc{
   repeated string news = 1;
 }
 
 service awesomeBotIII{
+  //rpc GetAllUsers(google.protobuf.Empty)
   rpc CreateUser(ChData) returns (google.protobuf.Empty) {}
   rpc CreateSource(ChSrcData) returns (google.protobuf.Empty) {}
   rpc GetSrcsByChat(ChData) returns (SrcSlcByChat) {}
