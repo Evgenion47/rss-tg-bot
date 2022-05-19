@@ -5,25 +5,15 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 	"homework-2/config"
+	"homework-2/localusers"
 	"homework-2/pkg/api"
+	"io/ioutil"
 	"log"
-	"os"
 	"time"
 )
 
-func Contains(s []int64, id int64) bool {
-	for i := range s {
-		if s[i] == id {
-			return true
-		}
-	}
-	return false
-}
-
 func main() {
-
 	conn, err := grpc.Dial("localhost:8080", grpc.WithInsecure())
 	if err != nil {
 		panic(err)
@@ -31,25 +21,24 @@ func main() {
 	defer func(conn *grpc.ClientConn) {
 		err := conn.Close()
 		if err != nil {
-
+			log.Println(err)
 		}
 	}(conn)
 
 	client := api.NewAwesomeBotIIIClient(conn)
 	ctx := context.Background()
-	ctx = metadata.AppendToOutgoingContext(ctx,
-		"sender", "testClient",
-		"when", time.Now().Format(time.RFC3339),
-		"sender", "route256",
-	)
 
-	rawСfg, err := os.ReadFile("./config/config.yaml")
+	rawСfg, err := ioutil.ReadFile("./config/config.yaml")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		rawСfg, err = ioutil.ReadFile("/app/config/config.yaml")
+		if err != nil {
+			log.Println(err)
+		}
 	}
 	cfg, err := config.ParseConfig(rawСfg)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	bot, err := tgbotapi.NewBotAPI(cfg.ApiKeys.Telegram)
@@ -57,7 +46,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	var users []int64
+	users := localusers.ReadUsers()
 
 	go func() {
 		for {
@@ -70,17 +59,17 @@ func main() {
 					respRSS, err := client.GetRSSBySource(ctx, &api.ChSrcData{ChatID: users[i], Source: respSrc.Sources[j]})
 					if err != nil {
 						log.Println(err)
+						continue
 					}
 					for k := range respRSS.News {
 						_, err := bot.Send(tgbotapi.NewMessage(users[i], respRSS.News[k]))
 						if err != nil {
 							log.Println(err)
 						}
-
 					}
 				}
 			}
-			time.Sleep(time.Hour)
+			time.Sleep(time.Minute)
 		}
 	}()
 
@@ -102,10 +91,16 @@ func main() {
 
 		if update.Message.Command() != "" {
 			switch update.Message.Command() {
-			case "start":
-				if !Contains(users, update.Message.Chat.ID) {
-					users = append(users, update.Message.Chat.ID)
+			case "help":
+				_, err := bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, fmt.Sprint("/start - добавление в базу;\n"+
+					"/add linkSrc - добавление источника;\n"+
+					"/del linkSrc - удаление источника;\n"+
+					"/sources - показать список всех источников;")))
+				if err != nil {
+					log.Println(err)
 				}
+
+			case "start":
 				resp, err := client.CreateUser(ctx, &api.ChData{ChatID: update.Message.Chat.ID})
 				if err != nil {
 					_, err := bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Добро пожаловать, снова."))
@@ -113,6 +108,8 @@ func main() {
 						log.Println(err)
 					}
 				} else {
+					users = append(users, update.Message.Chat.ID)
+					localusers.WriteUsers(users)
 					_, err := bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Добро пожаловать путник."))
 					if err != nil {
 						log.Println(err)
@@ -123,7 +120,7 @@ func main() {
 			case "add":
 				resp, err := client.CreateSource(ctx, &api.ChSrcData{ChatID: update.Message.Chat.ID, Source: update.Message.CommandArguments()})
 				if err != nil {
-					_, err := bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Источник уже существует."))
+					_, err := bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, err.Error()))
 					if err != nil {
 						log.Println(err)
 					}
@@ -136,9 +133,6 @@ func main() {
 				fmt.Printf("Respond: <%v>\n", resp.String())
 
 			case "sources":
-				if !Contains(users, update.Message.Chat.ID) {
-					users = append(users, update.Message.Chat.ID)
-				}
 				resp, err := client.GetSrcsByChat(ctx, &api.ChData{ChatID: update.Message.Chat.ID})
 				if err != nil {
 					_, err = bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Не повезло :("))
@@ -146,6 +140,12 @@ func main() {
 						log.Println(err)
 					}
 				} else {
+					if resp == nil {
+						_, err := bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Ничего не найдено, не повезло."))
+						if err != nil {
+							log.Println(err)
+						}
+					}
 					for i := range resp.Sources {
 						_, err := bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, resp.Sources[i]))
 						if err != nil {
@@ -158,7 +158,7 @@ func main() {
 			case "del":
 				resp, err := client.DeleteSource(ctx, &api.ChSrcData{ChatID: update.Message.Chat.ID, Source: update.Message.CommandArguments()})
 				if err != nil {
-					_, err := bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Источник не существует."))
+					_, err := bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, err.Error()))
 					if err != nil {
 						log.Println(err)
 					}

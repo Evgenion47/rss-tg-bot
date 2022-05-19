@@ -6,14 +6,16 @@ import (
 	pb "homework-2/pkg/api"
 )
 
-func (s *server) GetRSSBySource(ctx context.Context, req *pb.ChSrcData) (*pb.RSSSlc, error) {
+func (s *Server) GetRSSBySource(ctx context.Context, req *pb.ChSrcData) (*pb.RSSSlc, error) {
 	var data = models.DCData{
 		ChatID: req.ChatID,
 		Source: req.Source,
 	}
+
 	mess, err := s.repo.GetRSSBySource(ctx, data)
-	if err != nil {
-		err = NotFoundErr
+	if mess.News == nil {
+		err = HavntUpd
 	}
+
 	return &pb.RSSSlc{News: mess.News}, err
 }

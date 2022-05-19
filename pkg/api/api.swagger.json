@@ -1,0 +1,251 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "awesomeBotIII"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/api/crsrc": {
+      "post": {
+        "operationId": "awesomeBotIII_CreateSource",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiChSrcData"
+            }
+          }
+        ],
+        "tags": [
+          "awesomeBotIII"
+        ]
+      }
+    },
+    "/v1/api/cruser": {
+      "post": {
+        "operationId": "awesomeBotIII_CreateUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiChData"
+            }
+          }
+        ],
+        "tags": [
+          "awesomeBotIII"
+        ]
+      }
+    },
+    "/v1/api/delsrc": {
+      "post": {
+        "operationId": "awesomeBotIII_DeleteSource",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiChSrcData"
+            }
+          }
+        ],
+        "tags": [
+          "awesomeBotIII"
+        ]
+      }
+    },
+    "/v1/api/getRSS": {
+      "post": {
+        "operationId": "awesomeBotIII_GetRSSBySource",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiRSSSlc"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiChSrcData"
+            }
+          }
+        ],
+        "tags": [
+          "awesomeBotIII"
+        ]
+      }
+    },
+    "/v1/api/getsrcs/{chatID}": {
+      "get": {
+        "operationId": "awesomeBotIII_GetSrcsByChat",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiSrcSlcByChat"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "chatID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "awesomeBotIII"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiChData": {
+      "type": "object",
+      "properties": {
+        "chatID": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "apiChSrcData": {
+      "type": "object",
+      "properties": {
+        "chatID": {
+          "type": "string",
+          "format": "int64"
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    },
+    "apiRSSSlc": {
+      "type": "object",
+      "properties": {
+        "news": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "apiSrcSlcByChat": {
+      "type": "object",
+      "properties": {
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

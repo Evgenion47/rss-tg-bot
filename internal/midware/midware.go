@@ -13,5 +13,6 @@ func LogInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServer
 	} else {
 		log.Println(info.FullMethod, req, resp)
 	}
+
 	return resp, err
 }

@@ -8,13 +8,15 @@ import (
 	pb "homework-2/pkg/api"
 )
 
-func (s *server) CreateUser(ctx context.Context, req *pb.ChData) (*empty.Empty, error) {
+func (s *Server) CreateUser(ctx context.Context, req *pb.ChData) (*empty.Empty, error) {
 	var user = models.User{
 		ChatID: req.ChatID,
 	}
+
 	err := s.repo.CreateUser(ctx, user)
 	if err != nil {
 		err = AlreadyExistErr
 	}
+
 	return &emptypb.Empty{}, err
 }

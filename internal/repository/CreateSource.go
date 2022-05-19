@@ -2,30 +2,34 @@ package repository
 
 import (
 	"context"
+	"homework-2/internal/app"
 	"homework-2/internal/models"
 )
 
 func (r *repository) CreateSource(ctx context.Context, data models.DCData) (err error) {
+	const query1 = `
+		select "idUser" from "public.Users" 
+		where "idUser" = $1;
+`
+	const query2 = `
+		select "source" from "public.dict"
+		where "idUser" = $1 and "idSource" = $2;
+`
+	resp, err := r.pool.Query(ctx, query1, data.ChatID)
+	if !resp.Next() {
+		err = app.UserDoesNotExist
+		return
+	}
+	resp, err = r.pool.Query(ctx, query2, data.ChatID, data.Source)
+	if resp.Next() {
+		err = app.AlreadyExistErr
+		return
+	}
 
-	const query = `
+	const query3 = `
 		select createSource($1, $2);
 	`
-	_, err = r.pool.Exec(ctx, query, data.ChatID, data.Source)
+	_, err = r.pool.Exec(ctx, query3, data.ChatID, data.Source)
 
 	return
 }
-
-//create function createsource(integer, character varying) returns void
-//language plpgsql
-//as
-//$$
-//DECLARE
-//BEGIN
-//IF (select count("idSource") from "public.Source") = 0 THEN
-//insert into "public.Source"("idSource", "lastUpdate") VALUES ($2,0);
-//END IF;
-//insert into "public.dict"("idUser", "idSource") VALUES ($1, $2);
-//END
-//$$;
-//
-//alter function createsource(integer, varchar) owner to postgres;

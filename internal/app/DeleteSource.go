@@ -8,14 +8,13 @@ import (
 	pb "homework-2/pkg/api"
 )
 
-func (s *server) DeleteSource(ctx context.Context, req *pb.ChSrcData) (*empty.Empty, error) {
+func (s *Server) DeleteSource(ctx context.Context, req *pb.ChSrcData) (*empty.Empty, error) {
 	var data = models.DCData{
 		ChatID: req.ChatID,
 		Source: req.Source,
 	}
+
 	err := s.repo.DeleteSource(ctx, data)
-	if err != nil {
-		err = NotFoundErr
-	}
+
 	return &emptypb.Empty{}, err
 }

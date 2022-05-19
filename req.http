@@ -1,0 +1,32 @@
+#POST http://localhost:8081/v1/api/cruser
+#Content-Type: application/json
+#
+#{
+#  "chatID": 3
+#}
+
+#POST http://localhost:8081/v1/api/crsrc
+#Content-Type: application/json
+#
+#{
+#  "chatID": 3,
+#  "source": "https://github.blog/feed"
+#}
+
+#GET http://localhost:8081/v1/api/getsrcs/3
+
+#POST http://localhost:8081/v1/api/getRSS
+#Content-Type: application/json
+#
+#{
+#  "chatID": 3,
+#  "source": "https://github.blog/feed"
+#}
+
+#POST http://localhost:8081/v1/api/delsrc
+#Content-Type: application/json
+#
+#{
+#  "chatID": 3,
+#  "source": "https://github.blog/feed"
+#}

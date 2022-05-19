@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"homework-2/internal/app"
 	"homework-2/internal/models"
 	"homework-2/rss"
 	"path/filepath"
@@ -10,7 +11,6 @@ import (
 )
 
 func (r *repository) GetRSSBySource(ctx context.Context, data models.DCData) (news models.RSSNews, err error) {
-
 	const query1 = `
 		select "lastUpdate" from "public.dict" where "idSource" = $1 and "idUser" = $2;
 	`
@@ -22,22 +22,27 @@ func (r *repository) GetRSSBySource(ctx context.Context, data models.DCData) (ne
 	var lStamp time.Time
 	err = r.pool.QueryRow(ctx, query1, data.Source, data.ChatID).Scan(&lStamp)
 	if err != nil {
+		err = app.NotFoundErr
 		return
 	}
 
-	tmp, lastTS := GetRSSNews(data.Source, lStamp)
-
+	tmp, lastTS, err := GetRSSNews(data.Source, lStamp)
+	if err != nil {
+		news = models.RSSNews{News: tmp}
+		return
+	}
 	if tmp != nil {
 		_, err = r.pool.Exec(ctx, query2, lastTS, data.Source, data.ChatID)
+		news = models.RSSNews{News: tmp}
+	} else {
+		err = app.HavntUpd
+		news = models.RSSNews{News: []string{}}
 	}
-
-	news = models.RSSNews{News: tmp}
 
 	return
 }
 
-func GetRSSNews(source string, stamp time.Time) ([]string, time.Time) {
-	//stringURL := "http://blog.golang.org/feed.atom"
+func GetRSSNews(source string, stamp time.Time) ([]string, time.Time, error) {
 	var News []string
 	var Time time.Time
 	var lastTime time.Time
@@ -45,7 +50,8 @@ func GetRSSNews(source string, stamp time.Time) ([]string, time.Time) {
 
 	resp, err := rss.Read(source)
 	if err != nil {
-		fmt.Println(err)
+		err = app.WrongLink
+		return nil, stamp, err
 	}
 
 	if ext == ".atom" {
@@ -60,6 +66,7 @@ func GetRSSNews(source string, stamp time.Time) ([]string, time.Time) {
 			if err != nil {
 				fmt.Println(err)
 			}
+
 			if Time.Unix() > stamp.Unix() {
 				News = append(News, fmt.Sprint(entry.Updated+" : "+entry.Title))
 				if lastTime.Unix() < Time.Unix() {
@@ -78,6 +85,7 @@ func GetRSSNews(source string, stamp time.Time) ([]string, time.Time) {
 			if err != nil {
 				fmt.Println(err)
 			}
+
 			if Time.Unix() > stamp.Unix() {
 				News = append(News, fmt.Sprint(item.Title+" : "+item.FullText))
 				if lastTime.Unix() < Time.Unix() {
@@ -86,5 +94,5 @@ func GetRSSNews(source string, stamp time.Time) ([]string, time.Time) {
 			}
 		}
 	}
-	return News, lastTime
+	return News, lastTime, nil
 }

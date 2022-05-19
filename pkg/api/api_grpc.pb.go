@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.12.4
-// source: api/api.proto
+// source: api.proto
 
 package api
 
@@ -246,5 +246,5 @@ var AwesomeBotIII_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api/api.proto",
+	Metadata: "api.proto",
 }
