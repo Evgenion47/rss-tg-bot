@@ -25,24 +25,9 @@ func (d Date) Parse() (time.Time, error) {
 			t, err = d.ParseWithFormat(time.RFC3339) //Atom
 		}
 	}
+
 	return t, err
 }
-
-//func (d Date) Format(format string) (string, error) {
-//	t, err := d.Parse()
-//	if err != nil {
-//		return "", err
-//	}
-//	return t.Format(format), nil
-//}
-
-//func (d Date) MustFormat(format string) string {
-//	s, err := d.Format(format)
-//	if err != nil {
-//		return err.Error()
-//	}
-//	return s
-//}
 
 func Read(url string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", url, nil)

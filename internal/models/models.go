@@ -1,15 +1,21 @@
 package models
 
 type User struct {
-	UserID int64
+	ChatID int64
 }
 
 type Source struct {
-	Source  string
-	LastUpd int64
+	Source string
+}
+
+type Sources struct {
+	Sources []string
+}
+type RSSNews struct {
+	News []string
 }
 
 type DCData struct {
-	UserID int64
+	ChatID int64
 	Source string
 }

@@ -1,25 +1,14 @@
 package app
 
 import (
-	pb "awesomeProjectIII/pkg/api"
+	pb "homework-2/pkg/api"
 )
 
-type server struct {
+type Server struct {
+	repo Repository
 	pb.UnimplementedAwesomeBotIIIServer
 }
 
-//func (s server) CreateUser(ctx context.Context, req *pb.UData) (*empty.Empty, error) {
-//
-//}
-//
-//func (s server) CreateSource(ctx context.Context, req *pb.DelCreateData) (*empty.Empty, error) {
-//
-//}
-//
-//func (s server) GetSrcs(ctx context.Context, req *pb.UData) (*pb.SrcList, error) {
-//
-//}
-//
-//func (s server) DeleteSource(ctx context.Context, req *pb.DelCreateData) (*empty.Empty, error) {
-//
-//}
+func New(repo Repository) *Server {
+	return &Server{repo: repo}
+}
